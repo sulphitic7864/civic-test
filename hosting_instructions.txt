@@ -1,0 +1,57 @@
+Namecheap Shared Hosting Deployment Instructions
+
+1. Prepare the final project folder with these files:
+   - index.html
+   - style.css
+   - script.js
+   - questions.json
+   - sample-result-format.csv
+   - Dockerfile
+   - README.md
+   - assets/logo.png
+
+2. Log in to your Namecheap account and open cPanel for the shared hosting account.
+
+3. In cPanel, confirm the target domain or subdomain is active and note its document root.
+   - For the main domain this is usually `public_html`.
+   - For an addon domain or subdomain, use that site's assigned folder.
+
+4. Open the File Manager or use an FTP client such as FileZilla.
+
+5. If you use FTP:
+   - Host: your Namecheap FTP hostname or domain name
+   - Username: your cPanel or FTP username
+   - Password: your FTP password
+   - Port: 21
+
+6. Upload all files from the project folder into the correct web root.
+   - Keep `index.html`, `style.css`, `script.js`, and `questions.json` in the root.
+   - Keep `logo.png` inside the `assets` folder.
+
+7. Make sure the uploaded structure matches this layout:
+
+   index.html
+   style.css
+   script.js
+   questions.json
+   sample-result-format.csv
+   assets/logo.png
+
+8. If an older site already exists in that folder, back it up before replacing files.
+
+9. After upload, visit the live domain in a browser and verify:
+   - the logo loads
+   - the quiz starts
+   - questions appear one at a time
+   - the progress bar updates
+   - answer feedback shows immediately
+   - the CSV result download works
+
+10. The Dockerfile is included for local development only. Namecheap shared hosting will serve the static files directly and does not need Docker for this app.
+
+11. If the browser shows an old version after upload, clear the browser cache and refresh.
+
+12. If `questions.json` does not load, confirm:
+   - the file name is exactly `questions.json`
+   - it is in the same folder as `index.html`
+   - file permissions allow public read access

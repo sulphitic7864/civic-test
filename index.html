@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Civics Prep Quiz</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="page">
+    <section class="quiz-card" aria-labelledby="page-title">
+      <div class="accent-bar" aria-hidden="true"></div>
+      <header class="header">
+        <img class="logo" src="assets/logo.png" alt="Civics Prep logo">
+        <div>
+          <p class="eyebrow">US Naturalization Practice</p>
+          <h1 id="page-title">Civics Quiz</h1>
+          <p class="intro">Practice the 100 official civics questions one at a time with instant feedback.</p>
+        </div>
+      </header>
+
+      <section id="status-panel" class="status-panel hidden" hidden aria-label="Quiz status">
+        <div class="status-row">
+          <p id="score-text" class="status-label">0 out of 100 correct</p>
+          <p id="total-timer" class="timer-pill">Total time left: 100:00</p>
+          <p id="progress-text" class="status-label">Question 0 of 0</p>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+      </section>
+
+      <section id="setup-screen" class="panel" aria-labelledby="setup-title">
+        <h2 id="setup-title">Start a quiz session</h2>
+        <label class="field-label" for="student-name">Student name</label>
+        <input id="student-name" class="text-input" name="student-name" type="text" maxlength="80" placeholder="Enter your name">
+
+        <fieldset class="mode-fieldset">
+          <legend>Practice mode</legend>
+          <label class="mode-option">
+            <input type="radio" name="quiz-mode" value="all" checked>
+            <span>All 100 questions</span>
+          </label>
+          <label class="mode-option">
+            <input type="radio" name="quiz-mode" value="hard">
+            <span>Hard-question practice mode</span>
+          </label>
+        </fieldset>
+
+        <button id="start-button" class="primary-button" type="button">Start quiz</button>
+        <p id="setup-message" class="helper-text" aria-live="polite"></p>
+      </section>
+
+      <section id="quiz-screen" class="panel hidden" hidden aria-labelledby="question-text">
+        <h2 id="question-text" class="question-text"></h2>
+        <div id="options-container" class="options" role="group" aria-label="Answer options"></div>
+        <div id="feedback" class="feedback hidden" hidden aria-live="polite"></div>
+        <div class="action-row">
+          <button id="next-button" class="secondary-button hidden" hidden type="button">Next question</button>
+          <button id="quit-button" class="secondary-button" type="button">Quit test</button>
+          <button id="submit-button" class="primary-button hidden" hidden type="button">Submit Test</button>
+        </div>
+      </section>
+
+      <section id="result-screen" class="panel hidden" hidden aria-hidden="true" aria-labelledby="result-title">
+        <h2 id="result-title">Quiz complete</h2>
+        <div id="result-summary" class="result-summary"></div>
+        <div class="action-stack">
+          <button id="download-button" class="primary-button" type="button">Download result CSV</button>
+          <button id="restart-button" class="secondary-button" type="button">Start a new quiz</button>
+          <button id="review-button" class="secondary-button hidden" hidden type="button">Review missed questions</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
