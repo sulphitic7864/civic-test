@@ -1,6 +1,6 @@
-const TOTAL_QUIZ_SECONDS = 100 * 60;
 const QUESTION_SECONDS = 60;
-const DEVELOPMENT_QUESTION_LIMIT = 10;
+const DEFAULT_TOTAL_QUESTIONS = 100;
+const OPTION_KEYS = ["a", "b", "c", "d"];
 
 const elements = {
   statusPanel: document.getElementById("status-panel"),
@@ -8,6 +8,8 @@ const elements = {
   progressText: document.getElementById("progress-text"),
   progressFill: document.getElementById("progress-fill"),
   totalTimer: document.getElementById("total-timer"),
+  eyebrowText: document.querySelector(".eyebrow"),
+  introText: document.querySelector(".intro"),
   setupScreen: document.getElementById("setup-screen"),
   quizScreen: document.getElementById("quiz-screen"),
   resultScreen: document.getElementById("result-screen"),
@@ -32,8 +34,6 @@ const state = {
   missedQuestions: [],
   currentIndex: 0,
   score: 0,
-  timeRemaining: TOTAL_QUIZ_SECONDS,
-  carrySeconds: 0,
   questionTimeLimit: QUESTION_SECONDS,
   questionTimeRemaining: QUESTION_SECONDS,
   answeredCurrentQuestion: false,
@@ -105,11 +105,9 @@ function startQuiz({ reviewQuestions }) {
   state.studentName = studentName;
   state.quizMode = selectedMode;
   state.reviewMode = Boolean(reviewQuestions);
-  state.quizQuestions = shuffleQuestions(sourceQuestions);
+  state.quizQuestions = buildQuizQuestions(sourceQuestions);
   state.currentIndex = 0;
   state.score = 0;
-  state.timeRemaining = TOTAL_QUIZ_SECONDS;
-  state.carrySeconds = 0;
   state.questionTimeLimit = QUESTION_SECONDS;
   state.questionTimeRemaining = QUESTION_SECONDS;
   state.answeredCurrentQuestion = false;
@@ -119,6 +117,7 @@ function startQuiz({ reviewQuestions }) {
     state.missedQuestions = [];
   }
 
+  updateHeaderForMode();
   clearTimer();
   startTimer();
   showScreen("quiz");
@@ -131,19 +130,19 @@ function getSelectedMode() {
 }
 
 function getQuestionsForMode(mode) {
-  const questions = mode === "hard"
-    ? state.allQuestions.filter((question) => question.isHard)
-    : [...state.allQuestions];
-
-  return questions.slice(0, DEVELOPMENT_QUESTION_LIMIT);
+  return [...state.allQuestions];
 }
 
 function getScoreTotal() {
-  return state.quizQuestions.length || DEVELOPMENT_QUESTION_LIMIT;
+  return state.quizQuestions.length || getSetupQuestionTotal();
 }
 
-function shuffleQuestions(questions) {
-  const copy = [...questions];
+function getSetupQuestionTotal() {
+  return state.allQuestions.length || DEFAULT_TOTAL_QUESTIONS;
+}
+
+function shuffleQuestions(items) {
+  const copy = [...items];
 
   for (let i = copy.length - 1; i > 0; i -= 1) {
     const swapIndex = Math.floor(Math.random() * (i + 1));
@@ -153,23 +152,35 @@ function shuffleQuestions(questions) {
   return copy;
 }
 
+function buildQuizQuestions(sourceQuestions) {
+  return shuffleQuestions(sourceQuestions).map((question) => {
+    const shuffledOptions = shuffleQuestions(
+      question.options.map((option) => ({ ...option, originalKey: option.key }))
+    ).map((option, index) => ({
+      key: OPTION_KEYS[index],
+      text: option.text,
+      originalKey: option.originalKey
+    }));
+
+    const correctOption = shuffledOptions.find((option) => option.originalKey === question.correctAnswer);
+
+    return {
+      ...question,
+      options: shuffledOptions.map(({ key, text }) => ({ key, text })),
+      correctAnswer: correctOption ? correctOption.key : question.correctAnswer
+    };
+  });
+}
+
 function startTimer() {
   updateTimerText();
   state.timerId = window.setInterval(() => {
-    state.timeRemaining -= 1;
     state.questionTimeRemaining -= 1;
-
-    if (state.timeRemaining <= 0) {
-      state.timeRemaining = 0;
-      updateTimerText();
-      finishQuiz("time");
-      return;
-    }
 
     if (state.questionTimeRemaining <= 0 && !state.answeredCurrentQuestion) {
       state.questionTimeRemaining = 0;
-      handleQuestionTimeout();
       updateTimerText();
+      handleQuestionTimeout();
       return;
     }
 
@@ -190,8 +201,8 @@ function renderQuestion() {
   const isLastQuestion = state.currentIndex === totalQuestions - 1;
 
   state.answeredCurrentQuestion = false;
-  state.questionTimeLimit = Math.min(state.timeRemaining, QUESTION_SECONDS + state.carrySeconds);
-  state.questionTimeRemaining = state.questionTimeLimit;
+  state.questionTimeLimit = QUESTION_SECONDS;
+  state.questionTimeRemaining = QUESTION_SECONDS;
 
   elements.questionText.textContent = currentQuestion.question;
   elements.optionsContainer.innerHTML = "";
@@ -226,7 +237,6 @@ function selectAnswer(selectedKey) {
   }
 
   state.answeredCurrentQuestion = true;
-  state.carrySeconds = Math.max(state.questionTimeRemaining, 0);
   const currentQuestion = state.quizQuestions[state.currentIndex];
   const isCorrect = selectedKey === currentQuestion.correctAnswer;
   const optionButtons = elements.optionsContainer.querySelectorAll(".option-button");
@@ -255,15 +265,10 @@ function selectAnswer(selectedKey) {
   }
 
   updateStatus();
-
-  const isLastQuestion = state.currentIndex === state.quizQuestions.length - 1;
-  if (!isLastQuestion) {
-    elements.nextButton.textContent = "Next question";
-    elements.nextButton.disabled = false;
-  } else {
-    elements.nextButton.textContent = "Submit Test";
-    elements.nextButton.disabled = false;
-  }
+  elements.nextButton.disabled = false;
+  elements.nextButton.textContent = state.currentIndex === state.quizQuestions.length - 1
+    ? "Submit Test"
+    : "Next question";
 }
 
 function handleQuestionTimeout() {
@@ -272,7 +277,6 @@ function handleQuestionTimeout() {
   }
 
   state.answeredCurrentQuestion = true;
-  state.carrySeconds = 0;
 
   const currentQuestion = state.quizQuestions[state.currentIndex];
   const correctOption = currentQuestion.options.find((option) => option.key === currentQuestion.correctAnswer);
@@ -293,18 +297,17 @@ function handleQuestionTimeout() {
 
   showFeedback(`Time is up for this question. Correct answer: ${correctOption.text}`, "incorrect");
   updateStatus();
-
-  const isLastQuestion = state.currentIndex === state.quizQuestions.length - 1;
-  if (!isLastQuestion) {
-    elements.nextButton.textContent = "Next question";
-    elements.nextButton.disabled = false;
-  } else {
-    elements.nextButton.textContent = "Submit Test";
-    elements.nextButton.disabled = false;
-  }
+  elements.nextButton.disabled = false;
+  elements.nextButton.textContent = state.currentIndex === state.quizQuestions.length - 1
+    ? "Submit Test"
+    : "Next question";
 }
 
 function handlePrimaryAction() {
+  if (!state.answeredCurrentQuestion) {
+    return;
+  }
+
   const isLastQuestion = state.currentIndex === state.quizQuestions.length - 1;
   if (isLastQuestion) {
     finishQuiz("submitted");
@@ -321,10 +324,6 @@ function showFeedback(message, tone) {
 }
 
 function goToNextQuestion() {
-  if (!state.answeredCurrentQuestion) {
-    return;
-  }
-
   state.currentIndex += 1;
   renderQuestion();
 }
@@ -353,7 +352,7 @@ function updateStatus() {
 }
 
 function updateTimerText() {
-  elements.totalTimer.textContent = `Total time left: ${formatTime(state.timeRemaining)}`;
+  elements.totalTimer.textContent = `Time left: ${formatTime(state.questionTimeRemaining)}`;
 }
 
 function formatTime(totalSeconds) {
@@ -363,11 +362,7 @@ function formatTime(totalSeconds) {
 }
 
 function finishQuiz(reason) {
-  if (state.quizComplete) {
-    return;
-  }
-
-  if (!state.quizQuestions.length) {
+  if (state.quizComplete || !state.quizQuestions.length) {
     return;
   }
 
@@ -428,6 +423,23 @@ function formatModeLabel(mode) {
   }
 
   return "All questions";
+}
+
+function updateHeaderForMode() {
+  if (state.quizMode === "hard") {
+    elements.eyebrowText.textContent = "US Naturalization Practice - Hard Mode";
+    elements.introText.textContent = "Practice all 100 civics questions in hard mode with a strict 1-minute timer for each question.";
+    return;
+  }
+
+  if (state.quizMode === "review") {
+    elements.eyebrowText.textContent = "US Naturalization Practice - Review Mode";
+    elements.introText.textContent = "Review the questions missed in your previous attempt, one at a time.";
+    return;
+  }
+
+  elements.eyebrowText.textContent = "US Naturalization Practice";
+  elements.introText.textContent = "Practice the 100 official civics questions one at a time with instant feedback.";
 }
 
 function startReviewSession() {
@@ -505,8 +517,6 @@ function resetToSetup() {
   state.quizQuestions = [];
   state.currentIndex = 0;
   state.score = 0;
-  state.timeRemaining = TOTAL_QUIZ_SECONDS;
-  state.carrySeconds = 0;
   state.questionTimeLimit = QUESTION_SECONDS;
   state.questionTimeRemaining = QUESTION_SECONDS;
   state.answeredCurrentQuestion = false;
@@ -527,10 +537,11 @@ function resetToSetup() {
   elements.submitButton.hidden = true;
   elements.reviewButton.classList.add("hidden");
   elements.reviewButton.hidden = true;
-  elements.scoreText.textContent = `0 out of ${DEVELOPMENT_QUESTION_LIMIT} correct`;
-  elements.progressText.textContent = `Question 0 of ${DEVELOPMENT_QUESTION_LIMIT}`;
+  elements.scoreText.textContent = `0 out of ${getSetupQuestionTotal()} correct`;
+  elements.progressText.textContent = `Question 0 of ${getSetupQuestionTotal()}`;
   elements.progressFill.style.width = "0%";
-  elements.totalTimer.textContent = `Total time left: ${formatTime(TOTAL_QUIZ_SECONDS)}`;
+  elements.totalTimer.textContent = `Time left: ${formatTime(QUESTION_SECONDS)}`;
+  updateHeaderForMode();
   updateSetupMessage("Choose a mode and start when you are ready.");
   showScreen("setup");
 }
@@ -538,3 +549,5 @@ function resetToSetup() {
 function updateSetupMessage(message) {
   elements.setupMessage.textContent = message;
 }
+
+

@@ -2,9 +2,11 @@
   --blue: #2563eb;
   --blue-dark: #1d4ed8;
   --white: #ffffff;
-  --light-gray: #f3f4f6;
-  --text: #000000;
-  --border: #d1d5db;
+  --light-gray: #eef2ff;
+  --surface: #f8fafc;
+  --text: #111827;
+  --muted: #475569;
+  --border: #cbd5e1;
   --success: #dbeafe;
   --error: #fee2e2;
   --success-text: #1d4ed8;
@@ -21,9 +23,11 @@
 
 body {
   margin: 0;
-  background: var(--white);
+  background:
+    radial-gradient(circle at top, rgba(37, 99, 235, 0.08), transparent 30%),
+    linear-gradient(180deg, #f8fbff 0%, #ffffff 26%);
   color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Segoe UI", "Helvetica Neue", sans-serif;
 }
 
 button,
@@ -33,16 +37,17 @@ input {
 
 .page {
   min-height: 100vh;
-  padding: 20px 16px 32px;
+  padding: 28px 16px 40px;
 }
 
 .quiz-card {
   width: min(100%, 720px);
   margin: 0 auto;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 20px;
   background: var(--white);
   overflow: hidden;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
 }
 
 .accent-bar {
@@ -53,24 +58,26 @@ input {
 .header,
 .panel,
 .status-panel {
-  padding: 20px;
+  padding: 24px;
 }
 
 .header {
-  border-bottom: 1px solid var(--light-gray);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .logo {
   display: block;
   width: min(220px, 70%);
   height: auto;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .eyebrow {
   margin: 0 0 8px;
   color: var(--blue);
-  font-size: 0.95rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   font-weight: 700;
 }
 
@@ -81,18 +88,21 @@ p {
 }
 
 h1 {
-  margin-bottom: 10px;
-  font-size: 2rem;
+  margin-bottom: 12px;
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  letter-spacing: -0.03em;
 }
 
 .intro {
   margin-bottom: 0;
-  line-height: 1.5;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 58ch;
 }
 
 .status-panel {
-  background: var(--light-gray);
-  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+  border-bottom: 1px solid #dbe3f0;
 }
 
 .status-row {
@@ -105,30 +115,34 @@ h1 {
 .timer-note {
   margin-bottom: 0;
   font-weight: 600;
+  font-size: 1.02rem;
 }
 
 .timer-pill {
   margin-bottom: 0;
-  padding: 8px 12px;
+  padding: 10px 16px;
   border-radius: 999px;
   background: var(--white);
-  border: 1px solid var(--border);
+  border: 1px solid #bfdbfe;
   font-weight: 700;
+  color: var(--blue-dark);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .progress-track {
   width: 100%;
-  height: 12px;
-  margin-top: 16px;
+  height: 14px;
+  margin-top: 18px;
   border-radius: 999px;
   background: var(--white);
   overflow: hidden;
+  border: 1px solid #dbe3f0;
 }
 
 .progress-fill {
   width: 0;
   height: 100%;
-  background: var(--blue);
+  background: linear-gradient(90deg, var(--blue) 0%, #3b82f6 100%);
   transition: width 0.2s ease;
 }
 
@@ -143,7 +157,7 @@ h1 {
   width: 100%;
   padding: 14px 16px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--white);
 }
 
@@ -159,7 +173,8 @@ h1 {
   margin: 18px 0 20px;
   padding: 16px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 14px;
+  background: var(--surface);
 }
 
 .mode-option {
@@ -173,9 +188,10 @@ h1 {
 }
 
 .question-text {
-  margin-bottom: 18px;
-  font-size: 1.4rem;
-  line-height: 1.4;
+  margin-bottom: 20px;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.35;
+  letter-spacing: -0.02em;
 }
 
 .options {
@@ -187,8 +203,8 @@ h1 {
 .primary-button,
 .secondary-button {
   width: 100%;
-  padding: 14px 16px;
-  border-radius: 8px;
+  padding: 16px 18px;
+  border-radius: 14px;
   border: 1px solid var(--border);
   text-align: left;
   cursor: pointer;
@@ -197,11 +213,12 @@ h1 {
 .option-button {
   background: var(--white);
   color: var(--text);
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
 }
 
 .option-button:hover:not(:disabled),
 .secondary-button:hover:not(:disabled) {
-  background: var(--light-gray);
+  background: #f8fbff;
 }
 
 .option-button.correct {
@@ -219,11 +236,12 @@ h1 {
 }
 
 .primary-button {
-  background: var(--blue);
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
   color: var(--white);
   border-color: var(--blue);
   text-align: center;
   font-weight: 700;
+  box-shadow: 0 10px 18px rgba(37, 99, 235, 0.18);
 }
 
 .primary-button:hover:not(:disabled) {
@@ -240,8 +258,8 @@ h1 {
 
 .feedback {
   margin-top: 18px;
-  padding: 14px 16px;
-  border-radius: 8px;
+  padding: 16px 18px;
+  border-radius: 14px;
   border: 1px solid transparent;
   line-height: 1.5;
 }
@@ -262,7 +280,7 @@ h1 {
 .action-stack {
   display: grid;
   gap: 12px;
-  margin-top: 20px;
+  margin-top: 22px;
 }
 
 .action-row {
@@ -274,8 +292,8 @@ h1 {
   gap: 10px;
   padding: 16px;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--light-gray);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f8fbff 0%, #f3f7fd 100%);
 }
 
 .result-summary p,
@@ -294,13 +312,13 @@ h1 {
 
 @media (min-width: 640px) {
   .page {
-    padding: 40px 20px;
+    padding: 44px 20px;
   }
 
   .header,
   .panel,
   .status-panel {
-    padding: 24px 28px;
+    padding: 30px 32px;
   }
 
   .status-row {
