@@ -175,7 +175,7 @@ function buildQuizQuestions(sourceQuestions) {
 function startTimer() {
   updateTimerText();
   state.timerId = window.setInterval(() => {
-    state.questionTimeRemaining -= 1;
+    state.questionTimeRemaining = Math.max(state.questionTimeRemaining - 1, 0);
 
     if (state.questionTimeRemaining <= 0 && !state.answeredCurrentQuestion) {
       state.questionTimeRemaining = 0;
@@ -356,8 +356,9 @@ function updateTimerText() {
 }
 
 function formatTime(totalSeconds) {
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
+  const safeSeconds = Math.max(totalSeconds, 0);
+  const minutes = Math.floor(safeSeconds / 60);
+  const seconds = safeSeconds % 60;
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
@@ -549,5 +550,7 @@ function resetToSetup() {
 function updateSetupMessage(message) {
   elements.setupMessage.textContent = message;
 }
+
+
 
 
