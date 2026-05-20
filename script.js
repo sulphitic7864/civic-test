@@ -130,6 +130,10 @@ function getSelectedMode() {
 }
 
 function getQuestionsForMode(mode) {
+  if (mode === "hard") {
+    return state.allQuestions.filter((question) => question.isHard);
+  }
+
   return [...state.allQuestions];
 }
 
@@ -138,6 +142,11 @@ function getScoreTotal() {
 }
 
 function getSetupQuestionTotal() {
+  const mode = getSelectedMode();
+  if (mode === "hard") {
+    return state.allQuestions.filter((question) => question.isHard).length || 0;
+  }
+
   return state.allQuestions.length || DEFAULT_TOTAL_QUESTIONS;
 }
 
@@ -429,7 +438,7 @@ function formatModeLabel(mode) {
 function updateHeaderForMode() {
   if (state.quizMode === "hard") {
     elements.eyebrowText.textContent = "US Naturalization Practice - Hard Mode";
-    elements.introText.textContent = "Practice all 100 civics questions in hard mode with a strict 1-minute timer for each question.";
+    elements.introText.textContent = "Practice only the 9 hard civics questions with a strict 1-minute timer for each question.";
     return;
   }
 
@@ -550,6 +559,8 @@ function resetToSetup() {
 function updateSetupMessage(message) {
   elements.setupMessage.textContent = message;
 }
+
+
 
 
 
